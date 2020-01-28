@@ -16,6 +16,7 @@ export class MainComponent implements OnInit, OnDestroy {
   private pageLoad$: Subscription;
   pageEntities: Entity[];
   private _apiResult: any;
+  private user: any;
 
   hasApiResult: boolean = false;
   loading = false;
@@ -46,10 +47,33 @@ export class MainComponent implements OnInit, OnDestroy {
     this.pageEntities = pageInfo.entities;
     if ((pageInfo.entities || []).length == 1) {
       const entity = pageInfo.entities[0];
-      this.restService.call(entity.link).subscribe(result => this.apiResult = result);
+      if (entity.type == 'USER') {
+        this.restService.call(entity.link).subscribe(result => {
+          this.user = result; 
+          this._apiResult = result.user_role
+            .filter(r => r.role_type.desc !== 'Patron');
+
+        });
+      }
     } else {
       this.apiResult = {};
     }
+  }
+
+  activateStaffRoles() {
+    this.loading = true;
+    this.user.user_role
+      .filter(r => r.role_type.desc !== 'Patron')
+      .forEach(r => r.status.value = 'ACTIVE');
+    this.sendUpdateRequest(this.user);
+  }
+
+  deactivateStaffRoles() {
+    this.loading = true;
+    this.user.user_role
+      .filter(r => r.role_type.desc !== 'Patron')
+      .forEach(r => r.status.value = 'INACTIVE');
+    this.sendUpdateRequest(this.user);
   }
 
   update(value: any) {
