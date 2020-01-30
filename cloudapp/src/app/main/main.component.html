@@ -23,6 +23,7 @@
     <mat-card-header>
       <mat-card-title>User: {{user.primary_id}}</mat-card-title>
     </mat-card-header>
+    <p>Active Roles: {{user.activeRoleCount()}}</p>
     <mat-card-actions>
       <button mat-raised-button color="primary" (click)="activateStaffRoles()">Activate Staff Roles</button>
       <button mat-raised-button color="primary" (click)="deactivateStaffRoles()">Deactivate Staff Roles</button>
