@@ -6,58 +6,8 @@ import {
   Entity, PageInfo, RestErrorResponse
 } from '@exlibris/exl-cloudapp-angular-lib';
 
-
-class UserRoleStatus {
-  //TODO: is this sufficient?
-  value: 'ACTIVE' | 'INACTIVE';
-}
-
-class RoleType {
-  desc: string;
-  
-  static of(input: any): RoleType {
-    return Object.assign(new RoleType(), input);
-  }
-
-  isPatron(): boolean {return this.desc === 'Patron';}
-}
-
-class UserRole {
-  status: UserRoleStatus;
-  role_type: RoleType;
-
-  static of(input: any): UserRole {
-    const user_role = Object.assign(new UserRole(), input);
-    user_role.role_type = RoleType.of(input.role_type);
-    return user_role;
-  }
-
-  get active(): boolean {return this.status.value === 'ACTIVE';}  
-  set active(active: boolean) {
-    if (active) {
-      this.status.value = 'ACTIVE';
-    } else {
-      this.status.value = 'INACTIVE';
-    }
-  }
-}
-
-class User {
-  primary_id: string;
-  user_role: UserRole[];
-
-  static of(input: any): User {
-    const user = Object.assign(new User(), input);
-    user.user_role = input.user_role.map(role => UserRole.of(role));
-    return user;
-  }
-
-  activeRoleCount() {
-    return this.user_role.filter(r => r.active).length;
-  }
-}
-
-
+import { User } from '../user';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-main',
@@ -68,7 +18,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
   private pageLoad$: Subscription;
   pageEntities: Entity[];
-  private _apiResult: any;
   public user: User;
 
   hasApiResult: boolean = false;
@@ -76,7 +25,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
   constructor(private restService: CloudAppRestService,
     private eventsService: CloudAppEventsService,
-    private toastr: ToastrService) { }
+    private toastr: ToastrService,
+    private userService: UserService) { }
 
   ngOnInit() {
     this.eventsService.getPageMetadata().subscribe(this.onPageLoad);
@@ -87,54 +37,27 @@ export class MainComponent implements OnInit, OnDestroy {
     this.pageLoad$.unsubscribe();
   }
 
-  get apiResult() {
-    return this._apiResult;
-  }
-
-  set apiResult(result: any) {
-    this._apiResult = result;
-    this.hasApiResult = result && Object.keys(result).length > 0;
-  }
-
   onPageLoad = (pageInfo: PageInfo) => {
     this.pageEntities = pageInfo.entities;
+    console.log(pageInfo.entities);
     if ((pageInfo.entities || []).length == 1) {
       const entity = pageInfo.entities[0];
       if (entity.type == 'USER') {
-        this.restService.call(entity.link).subscribe(result => {
-          this.user = User.of(result); 
-          console.log(this.user);
-        });
+       this.userService.get(entity.link).subscribe(user => this.user = user);
       }
     } else {
-      this.apiResult = {};
+      this.user = null;
     }
   }
 
   activateStaffRoles() {
-    this.loading = true;
-    this.user.user_role
-      .filter(r => !r.role_type.isPatron())
-      .forEach(r => r.active = true);
-    this.sendUpdateRequest(this.user);
+    this.user.activateStaffRoles();
+    this.updateUser();
   }
 
   deactivateStaffRoles() {
-    this.loading = true;
-    this.user.user_role
-      .filter(r => !r.role_type.isPatron())
-      .forEach(r => r.active = false)
-    this.sendUpdateRequest(this.user);
-  }
-
-  update(value: any) {
-    this.loading = true;
-    let requestBody = this.tryParseJson(value);
-    if (!requestBody) {
-      this.loading = false;
-      return this.toastr.error('Failed to parse json');
-    }
-    this.sendUpdateRequest(requestBody);
+    this.user.deactivateStaffRoles();
+    this.updateUser();
   }
 
   refreshPage = () => {
@@ -149,15 +72,11 @@ export class MainComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sendUpdateRequest(requestBody: any) {
-    let request: Request = {
-      url: this.pageEntities[0].link,
-      method: HttpMethod.PUT,
-      requestBody
-    };
-    this.restService.call(request).subscribe({
-      next: result => {
-        this.apiResult = result;
+  private updateUser() {
+    this.loading = true;
+    this.userService.update(this.user).subscribe({
+      next: user => {
+        this.user = user;
         this.refreshPage();
       },
       error: (e: RestErrorResponse) => {
@@ -168,13 +87,19 @@ export class MainComponent implements OnInit, OnDestroy {
     });
   }
 
-  private tryParseJson(value: any) {
-    try {
-      return JSON.parse(value);
-    } catch (e) {
-      console.error(e);
-    }
-    return undefined;
+  private sendUpdateRequest(user: User) {
+    this.userService.update(user).subscribe({
+      next: user => {
+        //this.apiResult = result;
+        this.user = user;
+        this.refreshPage();
+      },
+      error: (e: RestErrorResponse) => {
+        this.toastr.error('Failed to update data');
+        console.error(e);
+        this.loading = false;
+      }
+    });
   }
 
 }
