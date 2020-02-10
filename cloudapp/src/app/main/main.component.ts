@@ -1,68 +1,65 @@
-import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import {
-  CloudAppRestService, CloudAppEventsService, Request, HttpMethod,
-  Entity, PageInfo, RestErrorResponse
-} from '@exlibris/exl-cloudapp-angular-lib';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { User } from '../user';
 import { UserService } from '../user.service';
+import { AlmaPageService } from '../alma-page.service';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss']
+  styleUrls: ['./main.component.scss'],
+//  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MainComponent implements OnInit, OnDestroy {
+export class MainComponent implements OnInit {
 
-  private pageLoad$: Subscription;
-  pageEntities: Entity[];
-  public user: User;
+  //TODO: consider something like an onUserPage Observable<boolean>
 
-  hasApiResult: boolean = false;
+  // TODO: maybe create an anync vm that combines the user, loading, and onUserPage observables.
+
+  user$: Observable<User>;
+  //TODO: convert the loading indicator ot an observable? Perhaps from a BehaviorSubject?
   loading = false;
 
-  constructor(private restService: CloudAppRestService,
-    private eventsService: CloudAppEventsService,
+  constructor(
+    private almaPage: AlmaPageService,
     private toastr: ToastrService,
     private userService: UserService) { }
 
   ngOnInit() {
-    this.eventsService.getPageMetadata().subscribe(this.onPageLoad);
-    this.pageLoad$ = this.eventsService.onPageLoad(this.onPageLoad);
+    this.user$ = this.userService.userLoaded()
+      .pipe(tap(user => console.debug('user loaded: ', user)));
   }
 
-  ngOnDestroy(): void {
-    this.pageLoad$.unsubscribe();
+  activateStaffRoles(user: User) {
+    user.activateStaffRoles();
+    this.updateUser(user);
   }
 
-  onPageLoad = (pageInfo: PageInfo) => {
-    this.pageEntities = pageInfo.entities;
-    console.log(pageInfo.entities);
-    if ((pageInfo.entities || []).length == 1) {
-      const entity = pageInfo.entities[0];
-      if (entity.type == 'USER') {
-       this.userService.get(entity.link).subscribe(user => this.user = user);
-      }
-    } else {
-      this.user = null;
-    }
+  deactivateStaffRoles(user: User) {
+    user.deactivateStaffRoles();
+    this.updateUser(user);
   }
 
-  activateStaffRoles() {
-    this.user.activateStaffRoles();
-    this.updateUser();
-  }
-
-  deactivateStaffRoles() {
-    this.user.deactivateStaffRoles();
-    this.updateUser();
-  }
-
-  refreshPage = () => {
+  private updateUser(user: User) {
     this.loading = true;
-    this.eventsService.refreshPage().subscribe({
+    this.userService.update(user).subscribe({
+      next: user => {
+        this.refreshPage();
+      },
+      error: e => {
+        this.toastr.error('Failed to update user');
+        console.error(e);
+        this.loading = false;
+      }
+    });
+  }
+
+  private refreshPage() {
+    this.loading = true;
+    this.almaPage.refresh().subscribe({
       next: () => this.toastr.success('Success!'),
       error: e => {
         console.error(e);
@@ -71,35 +68,4 @@ export class MainComponent implements OnInit, OnDestroy {
       complete: () => this.loading = false
     });
   }
-
-  private updateUser() {
-    this.loading = true;
-    this.userService.update(this.user).subscribe({
-      next: user => {
-        this.user = user;
-        this.refreshPage();
-      },
-      error: (e: RestErrorResponse) => {
-        this.toastr.error('Failed to update data');
-        console.error(e);
-        this.loading = false;
-      }
-    });
-  }
-
-  private sendUpdateRequest(user: User) {
-    this.userService.update(user).subscribe({
-      next: user => {
-        //this.apiResult = result;
-        this.user = user;
-        this.refreshPage();
-      },
-      error: (e: RestErrorResponse) => {
-        this.toastr.error('Failed to update data');
-        console.error(e);
-        this.loading = false;
-      }
-    });
-  }
-
 }

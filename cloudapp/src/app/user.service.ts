@@ -1,19 +1,30 @@
-import { CloudAppRestService, HttpMethod } from '@exlibris/exl-cloudapp-angular-lib';
+import { CloudAppRestService, HttpMethod, PageInfo, Entity} from '@exlibris/exl-cloudapp-angular-lib';
 import { Injectable } from '@angular/core';
-import { Observable, OperatorFunction } from 'rxjs';
-import { AppModule } from './app.module';
-import { map } from 'rxjs/operators';
+import { Observable, partition, merge, EMPTY } from 'rxjs';
+import { pluck, switchMap, map, mapTo } from 'rxjs/operators';
+import { AlmaPageService } from './alma-page.service';
 import { User } from './user';
 
+const toUser = (response: any): User => User.create(response)
+const isUserEntity = (entities: Entity[]): boolean => 
+  entities.length == 1 && entities[0].type === 'USER'
+
 @Injectable({
-  providedIn: AppModule
+  providedIn: 'root'
 })
 export class UserService {
-  constructor(private cloudAppRestService: CloudAppRestService) {}
+  constructor(
+    private cloudAppRestService: CloudAppRestService,
+    private almaPageService: AlmaPageService) {}
 
+  /**
+   * 
+   * @param link path to the Alma REST user
+   */
   get(link: string): Observable<User> {
+    // it'd be nice if the call method used generics
     return this.cloudAppRestService.call(link)
-      .pipe(map(this.toUser));
+      .pipe(map(toUser));
   }
 
   update(user: User): Observable<User> {
@@ -23,10 +34,21 @@ export class UserService {
       requestBody: user
     }
     return this.cloudAppRestService.call(request)
-      .pipe(map(this.toUser));
+      .pipe(map(toUser));
   }
 
-  private toUser(response: any): User {
-    return User.create(response);
+  /**
+   * if the currently-loaded page is not a user page, 
+   * the emitted value will be null
+   */
+  userLoaded(): Observable<User> {
+    const entities$ = this.almaPageService.entities;
+    const [userEntity$, otherEntities$] = partition(entities$, isUserEntity);
+    return merge(
+      userEntity$.pipe(
+        pluck(0, 'link'),
+        switchMap(link => this.get(link))), 
+      otherEntities$.pipe(
+        mapTo(null)));
   }
 }
