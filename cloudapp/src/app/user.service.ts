@@ -20,7 +20,7 @@ export class UserService {
   get(link: string): Observable<User> {
     // it'd be nice if the call method used generics
     return this.cloudAppRestService.call(link)
-      .pipe(map(User.create));
+      .pipe(map(User.of));
   }
 
   update(user: User): Observable<User> {
@@ -30,6 +30,6 @@ export class UserService {
       requestBody: user
     }
     return this.cloudAppRestService.call(request)
-      .pipe(map(User.create));
+      .pipe(map(User.of));
   }
 }

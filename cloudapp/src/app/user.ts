@@ -25,7 +25,7 @@ export class User {
    * static factory
    * @param user an Alma REST user object
    */
-  static create(user: any): User {
+  static of(user: any): User {
     return Object.assign(new User(), user);
   }
 
