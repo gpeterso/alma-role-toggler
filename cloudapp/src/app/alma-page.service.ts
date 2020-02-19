@@ -1,36 +1,41 @@
 import { Injectable } from '@angular/core';
-import { Observable, fromEventPattern, concat } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { Observable, fromEventPattern, concat, merge, combineLatest, race } from 'rxjs';
+import { tap, map, skip } from 'rxjs/operators';
 import { CloudAppEventsService, PageInfo, Entity } from '@exlibris/exl-cloudapp-angular-lib';
 
+/**
+ * Wraps the CloudAppEventService to provide a simplified interface for 
+ * interacting with the currently-loaded Alma page.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AlmaPageService {
-  constructor(private eventsService: CloudAppEventsService) {}
+  private currentPageInfo$: Observable<PageInfo> = 
+    this.eventsService.getPageMetadata()
+      .pipe(tap(pageInfo => console.debug('Current PageInfo: ', pageInfo)))
 
-
-  // TODO: consider caching with shareReplay()?
+  private futurePageInfo$: Observable<PageInfo> = 
+    fromEventPattern<PageInfo>(
+      handler => this.eventsService.onPageLoad(handler),
+      (_, subscription) => subscription.unsubscribe())
+      .pipe(skip(1), //ignore the initially-emitted value of { entities: [] }
+        tap(pageInfo => console.debug('Future PageInfo: ', pageInfo)))
 
   /**
-   * combines initial and future page load events into a single observable
+   * Never completes; users should unsubscribe.
    */
-  get pageInfo(): Observable<PageInfo> {
-    // I don't really like the mediator / event bus style of passing in a callback
-    // and getting back a subscription because 1) I can't transform the observable
-    // and 2) I can't let angular manage the subscription with an async pipe
-    return concat(
-      this.eventsService.getPageMetadata(),
-      fromEventPattern<PageInfo>(
-        handler => this.eventsService.onPageLoad(handler),
-        (handler, subscription) => subscription.unsubscribe()));
-      //.pipe(tap(pageInfo => console.debug('PageInfo: ', pageInfo)));
-  }
+  readonly pageInfo$: Observable<PageInfo> = 
+    concat(this.currentPageInfo$, this.futurePageInfo$)
+     // .pipe(tap(pageInfo => console.debug('PageInfo: ', pageInfo)))
 
-  get entities(): Observable<Entity[]> {
-    return this.pageInfo
-      .pipe(map((pageInfo => pageInfo.entities || [])));
-  }
+  /**
+   * Never completes; users should unsubscribe.
+   */
+  readonly entities$: Observable<Entity[]> = 
+    this.pageInfo$.pipe(map(pageInfo => pageInfo.entities || []));
+
+  constructor(private eventsService: CloudAppEventsService) {}
 
   refresh() {
     return this.eventsService.refreshPage();

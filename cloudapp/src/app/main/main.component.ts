@@ -1,37 +1,33 @@
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
+import { tap, map, pluck, switchMap, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-
+import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
 import { User } from '../user';
 import { UserService } from '../user.service';
 import { AlmaPageService } from '../alma-page.service';
+
+const isUserEntity = (entities: Entity[]): boolean => 
+  entities.length == 1 && entities[0].type == 'USER'
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
-//  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MainComponent implements OnInit {
-
-  //TODO: consider something like an onUserPage Observable<boolean>
-
-  // TODO: maybe create an anync vm that combines the user, loading, and onUserPage observables.
-
-  user$: Observable<User>;
-  //TODO: convert the loading indicator ot an observable? Perhaps from a BehaviorSubject?
-  loading = false;
+export class MainComponent {
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  loading$ = this.loadingSubject.asObservable();
+  onUserPage$ = this.almaPage.entities$.pipe(map(isUserEntity));
+  user$ = this.almaPage.entities$.pipe(
+    pluck(0, 'link'),
+    switchMap(link => this.userService.get(link)));
 
   constructor(
     private almaPage: AlmaPageService,
     private toastr: ToastrService,
     private userService: UserService) { }
-
-  ngOnInit() {
-    this.user$ = this.userService.userLoaded()
-      .pipe(tap(user => console.debug('user loaded: ', user)));
-  }
 
   activateStaffRoles(user: User) {
     user.activateStaffRoles();
@@ -44,7 +40,7 @@ export class MainComponent implements OnInit {
   }
 
   private updateUser(user: User) {
-    this.loading = true;
+    this.loadingSubject.next(true);
     this.userService.update(user).subscribe({
       next: user => {
         this.refreshPage();
@@ -52,20 +48,20 @@ export class MainComponent implements OnInit {
       error: e => {
         this.toastr.error('Failed to update user');
         console.error(e);
-        this.loading = false;
+        this.loadingSubject.next(false);
       }
     });
   }
 
   private refreshPage() {
-    this.loading = true;
+    this.loadingSubject.next(true);
     this.almaPage.refresh().subscribe({
       next: () => this.toastr.success('Success!'),
       error: e => {
         console.error(e);
         this.toastr.error('Failed to refresh page');
       },
-      complete: () => this.loading = false
+      complete: () => this.loadingSubject.next(false)
     });
   }
 }

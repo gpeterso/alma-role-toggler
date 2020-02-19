@@ -5,7 +5,7 @@
   <p>Activate or deactivate a user's non-patron roles</p>
 </section>
 
-<section *ngIf="user$ | async as user">
+<section *ngIf="(onUserPage$|async) && user$|async as user">
   <mat-card>
     <mat-card-header>
       <mat-card-title>User: {{user.full_name}}</mat-card-title>
@@ -13,18 +13,18 @@
     </mat-card-header>
     <mat-card-content>
       <div style="display: inline-block; width: 100%; text-align: center;">
-        <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+        <mat-progress-bar *ngIf="loading$|async" mode="indeterminate"></mat-progress-bar>
       </div>
     </mat-card-content>
     <mat-card-actions>
       <button mat-raised-button color="primary" 
               (click)="activateStaffRoles(user)" 
-              [disabled]="loading">
+              [disabled]="loading$|async">
         Activate Staff Roles
       </button>
       <button mat-raised-button color="warn" 
               (click)="deactivateStaffRoles(user)" 
-              [disabled]="loading || user.activeStaffRoleCount == 0">
+              [disabled]="(loading$|async) || user.activeStaffRoleCount == 0">
         Deactivate Staff Roles
       </button>
     </mat-card-actions>
