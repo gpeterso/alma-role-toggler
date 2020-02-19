@@ -1,17 +1,14 @@
-import { CloudAppRestService, HttpMethod, PageInfo, Entity} from '@exlibris/exl-cloudapp-angular-lib';
+import { CloudAppRestService, HttpMethod } from '@exlibris/exl-cloudapp-angular-lib';
 import { Injectable } from '@angular/core';
-import { Observable, partition, merge, EMPTY } from 'rxjs';
-import { pluck, switchMap, map, mapTo, delay } from 'rxjs/operators';
-import { AlmaPageService } from './alma-page.service';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { User } from './user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  constructor(
-    private cloudAppRestService: CloudAppRestService,
-    private almaPageService: AlmaPageService) {}
+  constructor(private cloudAppRestService: CloudAppRestService) {}
 
   /**
    * 

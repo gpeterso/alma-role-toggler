@@ -1,7 +1,7 @@
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
-import { tap, map, pluck, switchMap, startWith } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { map, pluck, switchMap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
 import { User } from '../user';
 import { UserService } from '../user.service';
