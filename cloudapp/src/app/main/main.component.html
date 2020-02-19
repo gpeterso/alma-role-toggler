@@ -12,7 +12,7 @@
       <mat-card-subtitle>Active Staff Roles: {{user.activeStaffRoleCount}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <div style="display: inline-block; width: 100%; text-align: center;">
+      <div class="progress-bar-container">
         <mat-progress-bar *ngIf="loading$|async" mode="indeterminate"></mat-progress-bar>
       </div>
     </mat-card-content>
