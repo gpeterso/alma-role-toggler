@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "eca start"
+    "start": "eca start",
+    "eca": "eca"
   },
   "dependencies": {
-    "@exlibris/exl-cloudapp-base": "^0.1.12"
+    "@exlibris/exl-cloudapp-base": "^0.1.12",
+    "@exlibris/exl-cloudapp-cli": "^0.1.12"
   }
 }
