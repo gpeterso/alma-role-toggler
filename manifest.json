@@ -2,5 +2,8 @@
    "$schema": "./manifest.schema.json",
    "id": "stroggle",
    "title": "Stroggle",
-   "description": "Toggle staff roles on Alma users"
+   "description": "Toggle staff roles on Alma users",
+   "pages": {
+      "settings": "/#/settings"
+   }
 }

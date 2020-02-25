@@ -1,0 +1,29 @@
+<p>settings works!</p>
+
+
+  <mat-form-field>
+    <input #row 
+           type="text" 
+           matInput 
+           placeholder="Select a role"
+           [formControl]="filter" 
+           [matAutocomplete]="auto">
+  </mat-form-field>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="formatRoleTypeOption"
+    (optionSelected)="selected(row)">
+    <mat-option *ngFor="let role of filteredRoles$ | async" [value]="role">
+        {{role.description}}
+    </mat-option>
+  </mat-autocomplete>
+  <button *ngIf="filter.valid" mat-button color="primary" (click)=addSelectedRow()>Add Role</button>
+
+  <mat-list>
+    <mat-list-item *ngFor="let role of roleList">
+      <span matLine>
+      {{role.description}} 
+      </span>
+      <button mat-icon-button (click)="remove(role)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
