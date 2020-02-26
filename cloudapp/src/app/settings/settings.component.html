@@ -2,28 +2,32 @@
 
 
   <mat-form-field>
-    <input #row 
+    <input #roleInput 
            type="text" 
            matInput 
            placeholder="Select a role"
            [formControl]="filter" 
            [matAutocomplete]="auto">
   </mat-form-field>
-  <mat-autocomplete #auto="matAutocomplete" [displayWith]="formatRoleTypeOption"
-    (optionSelected)="selected(row)">
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="formatRoleTypeOption">
     <mat-option *ngFor="let role of filteredRoles$ | async" [value]="role">
-        {{role.description}}
+        {{role.desc}}
     </mat-option>
   </mat-autocomplete>
-  <button *ngIf="filter.valid" mat-button color="primary" (click)=addSelectedRow()>Add Role</button>
+  <button *ngIf="filter.valid" mat-button color="primary" (click)=addSelectedRole()>Add Role</button>
 
   <mat-list>
-    <mat-list-item *ngFor="let role of roleList">
+    <mat-list-item *ngFor="let role of selectedRoles">
       <span matLine>
-      {{role.description}} 
+      {{role.desc}} 
       </span>
       <button mat-icon-button (click)="remove(role)">
         <mat-icon>delete</mat-icon>
       </button>
     </mat-list-item>
   </mat-list>
+
+<div>
+<button mat-raised-button color="primary" (click)="save()" >Save</button>
+<button mat-raised-button color="primary">Cancel</button>
+</div>

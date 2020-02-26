@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest, zip } from 'rxjs';
 import { tap, map, filter, startWith } from 'rxjs/operators';
-import { CloudAppRestService } from '@exlibris/exl-cloudapp-angular-lib';
-
-
+import { CloudAppRestService, CloudAppSettingsService } from '@exlibris/exl-cloudapp-angular-lib';
+import { RoleTypeService } from '../services/role-type.service';
+import { Settings } from '../models/settings';
+import { RoleType } from '../models/user';
 
 interface Row {
   code: string;
@@ -23,58 +24,57 @@ interface CodeTable {
 })
 export class SettingsComponent implements OnInit {
 
-  roleList: Set<Row> = new Set<Row>();
+  //roleList: Set<Row> = new Set<Row>();
 
-  roles$: Observable<Row[]> = this.restService.call('/conf/code-tables/HFrUserRoles.roleType')
-    .pipe(
-      map(ct => (<CodeTable>ct).row),
-      map(rts => (<Row[]>rts)
-        .filter(rt => rt.enabled)
-        .sort((a, b) => {
-          if (a.description < b.description) return -1;
-          if (a.description < b.description) return 1;
-          return 0})),
-      tap(r => console.log("ROLE TYPES: ", r)));
+  /*
+  private selectedRoleCodeSubject = new BehaviorSubject<string[]>([]);
+  selectedRoleCodes$ = this.selectedRoleCodeSubject.asObservable();
+  */
+
+  selectedRoles: RoleType[];
+
   filter = new FormControl('', this.validateFilter);
+
+  roles$: Observable<RoleType[]> = this.roleTypeService.get();
   filter$ = this.filter.valueChanges.pipe(
     startWith(''),
     filter(filterValue => typeof filterValue === "string"));
-  filteredRoles$: Observable<Row[]>;
+  filteredRoles$: Observable<RoleType[]>;
 
-  value: Row;
+  @ViewChild("roleInput", {static: true}) roleInput: ElementRef;
 
-  constructor(private restService: CloudAppRestService) {}
+  constructor(
+    private restService: CloudAppRestService,
+    private settingService: CloudAppSettingsService,
+    private roleTypeService: RoleTypeService) {}
 
   ngOnInit() {
-    /*
-    this.filteredRoles$ = this.roleControl.valueChanges.pipe(
-      startWith(''),
-      map(this.filterRoles));
-
-      */
-
-    this.value = this.filter.value;
-
-
     this.filteredRoles$ = combineLatest(this.roles$, this.filter$).pipe(
       tap(([_, filterValue]) => console.log("value change: ", filterValue)),
       map(([roles, filterValue]) => roles.filter(
-        role => role.description.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1)));
+        role => role.desc.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1)));
 
+        /*
+    this.settingService.get().subscribe(settings => 
+      this.selectedRoles = settings.excludeRoles || []);
+      */
+
+    zip(this.settingService.get(), this.roles$).pipe(
+      map(([settings, roles]) => (settings.excludeRoleCodes || [])
+        .map(code => roles.find(role => role.code === code))
+      )).subscribe(roles => this.selectedRoles = roles);
+    
   }
 
-  formatRoleTypeOption(row: Row): string {
-    return row && row.description;
+  formatRoleTypeOption(role: RoleType): string {
+    return role && role.desc;
   }
 
-  selected(row: Row) {
-    console.log("Selected: ", row);
-
-    console.log("Form Crtl Value: ", this.filter.value);
-  }
-
-  addSelectedRow() {
-    this.roleList.add(this.filter.value);
+  addSelectedRole() {
+    //this.roleList.add(this.filter.value);
+    this.selectedRoles.push(this.filter.value);
+    this.filter.reset();
+    this.roleInput.nativeElement.focus();
   }
 
   validateFilter(crtl: FormControl) {
@@ -86,13 +86,24 @@ export class SettingsComponent implements OnInit {
     return null;
   }
 
-  remove(row: Row) {
-    console.log("removing: ", row);
-    //this.roleList = this.roleList.filter(r => r.code !== row.code);
-    this.roleList.delete(row);
+  remove(role: RoleType) {
+    console.log("removing: ", role);
+    this.selectedRoles = this.selectedRoles.filter(r => r.code !== role.code);
+    //this.roleList.delete(row);
   }
 
+  save() {
+    //TODO: add staving state & spinner
+    const codes = this.selectedRoles.map(role => role.code);
+    const settings = { excludeRoleCodes: codes };
+    this.settingService.set(settings).subscribe(resp => {
+      if (resp.success) {
+        console.log("Settings Saved");
+      } else {
+        console.error("Failed to save settings: ", resp.error);
+      }
+    });
+  }
 
-
-
+  // TODO: add cacel handler; reload data (dirty check?)
 }
