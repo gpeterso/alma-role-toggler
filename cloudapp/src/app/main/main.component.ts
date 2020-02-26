@@ -3,7 +3,7 @@ import { map, pluck, switchMap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
-import { User } from '../user';
+import { User } from '../models/user';
 import { UserService } from '../user.service';
 import { AlmaPageService } from '../alma-page.service';
 

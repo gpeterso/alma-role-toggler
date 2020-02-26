@@ -1,8 +1,9 @@
 interface UserRoleStatus {
-  value: 'ACTIVE' | 'INACTIVE';
+  value: "ACTIVE" | "INACTIVE";
 }
 
-interface RoleType {
+export interface RoleType {
+  code: string;
   desc: string;
 }
 
@@ -19,7 +20,7 @@ export class User {
   readonly primary_id: string;
   readonly link: string;
   private user_role: UserRole[];
-  private constructor() {};
+  private constructor() {}
 
   /**
    * static factory
@@ -30,20 +31,25 @@ export class User {
   }
 
   get activeStaffRoleCount(): number {
-    return this.staffRoles
-      .filter(role => role.status.value === 'ACTIVE')
+    return this.staffRoles.filter(role => role.status.value === "ACTIVE")
       .length;
   }
 
   activateStaffRoles(): void {
-    this.staffRoles.forEach(role => role.status.value = 'ACTIVE');
+    this.staffRoles.forEach(role => (role.status.value = "ACTIVE"));
   }
 
   deactivateStaffRoles(): void {
-    this.staffRoles.forEach(role => role.status.value = 'INACTIVE');
+    this.staffRoles.forEach(role => (role.status.value = "INACTIVE"));
   }
 
   private get staffRoles(): UserRole[] {
-    return this.user_role.filter(role => role.role_type.desc !== 'Patron');
+    return this.user_role.filter(role => role.role_type.desc !== "Patron");
   }
+
+  /**
+   * Activate all of the user's roles, except those specified in roleCodes
+   * @param roleCode Array of role codes (defined in the User Roles code table)
+   */
+  activateRolesExcept(roleCodes: string[] = []) {}
 }
