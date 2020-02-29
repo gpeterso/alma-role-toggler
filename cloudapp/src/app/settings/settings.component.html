@@ -19,7 +19,7 @@
   <mat-list>
     <mat-list-item *ngFor="let role of selectedRoles">
       <span matLine>
-      {{role.desc}} 
+      {{role.code | roleTypeDesc}} 
       </span>
       <button mat-icon-button (click)="remove(role)">
         <mat-icon>delete</mat-icon>

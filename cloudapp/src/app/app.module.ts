@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
 import { SettingsComponent } from './settings/settings.component';
+import { RoleTypeDescPipe } from './pipes/role-type-desc.pipe';
 
 export function getToastrModule() {
   return ToastrModule.forRoot({
@@ -22,7 +23,8 @@ export function getToastrModule() {
   declarations: [
     AppComponent,
     MainComponent,
-    SettingsComponent
+    SettingsComponent,
+    RoleTypeDescPipe
   ],
   imports: [
     MaterialModule,
