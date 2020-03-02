@@ -5,33 +5,33 @@ import { RoleType } from '../models/user';
 
 const toLookupTable = (roleTypes: RoleType[]) =>
   roleTypes.reduce(
-    (table, roleType) => {
-      table[roleType.code] = roleType.desc; return table;
-    }, {});
+    (table, roleType) => ({ ...table, [roleType.code]: roleType.desc }),
+    {}
+  );
 
 @Pipe({
   name: 'roleTypeDesc',
   pure: true
 })
 export class RoleTypeDescPipe implements PipeTransform {
-  private lookupTable = null;
+  private lookupTable: Record<string, string> = null;
 
-  constructor(private roleTypeService: RoleTypeService) {
-    console.log("creating new pipe instance");
-  }
+  constructor(private roleTypeService: RoleTypeService) {}
 
   transform(code: string): string {
-    if (!this.lookupTable) {
-      console.log("No Lookup table found");
-      this.roleTypeService.get()
-        .pipe(
-          map(toLookupTable),
-          tap(_ => console.log('LOADING LOOKUP TABLE FOR PIPE'))
-        )
-        .subscribe(lookupTable => this.lookupTable = lookupTable);
-    }
-
-    return this.lookupTable[code] || null;
+    if (!this.lookupTable) this.loadLookupTable();
+    return this.lookupTable[code] || `UNKNOWN ROLE (${code})`;
   }
 
+  private loadLookupTable(): void {
+    this.roleTypeService
+      .get()
+      .pipe(
+        map(toLookupTable),
+        tap(_ =>
+          console.debug(`${this.constructor.name}: loading lookup table`)
+        )
+      )
+      .subscribe(lookupTable => (this.lookupTable = lookupTable));
+  }
 }
