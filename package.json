@@ -9,5 +9,13 @@
   "dependencies": {
     "@exlibris/exl-cloudapp-base": "^0.1.12",
     "@exlibris/exl-cloudapp-cli": "^0.1.12"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^1.19.1"
   }
 }
