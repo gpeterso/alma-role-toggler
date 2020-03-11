@@ -1,5 +1,5 @@
 interface UserRoleStatus {
-  value: "ACTIVE" | "INACTIVE";
+  value: 'ACTIVE' | 'INACTIVE';
 }
 
 export interface RoleType {
@@ -26,30 +26,49 @@ export class User {
    * static factory
    * @param user an Alma REST user object
    */
-  static of(user: any): User {
+  static of(user: Partial<User>): User {
     return Object.assign(new User(), user);
   }
 
   get activeStaffRoleCount(): number {
-    return this.staffRoles.filter(role => role.status.value === "ACTIVE")
+    return this.staffRoles.filter(role => role.status.value === 'ACTIVE')
       .length;
   }
 
   activateStaffRoles(): void {
-    this.staffRoles.forEach(role => (role.status.value = "ACTIVE"));
+    this.staffRoles.forEach(role => (role.status.value = 'ACTIVE'));
   }
 
   deactivateStaffRoles(): void {
-    this.staffRoles.forEach(role => (role.status.value = "INACTIVE"));
+    this.staffRoles.forEach(role => (role.status.value = 'INACTIVE'));
   }
 
   private get staffRoles(): UserRole[] {
-    return this.user_role.filter(role => role.role_type.desc !== "Patron");
+    return this.user_role.filter(role => role.role_type.desc !== 'Patron');
   }
 
   /**
    * Activate all of the user's roles, except those specified in roleCodes
-   * @param roleCode Array of role codes (defined in the User Roles code table)
+   * @param roleCode role codes to exclude (defined in the User Roles code table)
    */
-  activateRolesExcept(roleCodes: string[] = []) {}
+  activateRolesExcept(roleCodes: Iterable<string> = []): void {
+    this.allRolesExcept(roleCodes).forEach(
+      role => (role.status.value = 'ACTIVE')
+    );
+  }
+
+  /**
+   * Deactivate all of the user's roles, except those specified in roleCodes
+   * @param roleCode role codes to exclude (defined in the User Roles code table)
+   */
+  deactivateRolesExcept(roleCodes: Iterable<string> = []): void {
+    this.allRolesExcept(roleCodes).forEach(
+      role => (role.status.value = 'INACTIVE')
+    );
+  }
+
+  private allRolesExcept(roleCodes: Iterable<string> = []): UserRole[] {
+    const blacklist = new Set(roleCodes);
+    return this.user_role.filter(role => !blacklist.has(role.role_type.code));
+  }
 }
