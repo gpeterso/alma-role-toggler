@@ -2,10 +2,13 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable, BehaviorSubject, combineLatest, zip } from 'rxjs';
 import { tap, map, filter, startWith } from 'rxjs/operators';
-import { CloudAppRestService, CloudAppSettingsService } from '@exlibris/exl-cloudapp-angular-lib';
-import { RoleTypeService } from '../services/role-type.service';
+import {
+  CloudAppRestService,
+  CloudAppSettingsService,
+} from '@exlibris/exl-cloudapp-angular-lib';
 import { Settings } from '../models/settings';
 import { RoleType } from '../models/user';
+import { SettingsService } from '../services/settings.service';
 
 interface Row {
   code: string;
@@ -20,10 +23,9 @@ interface CodeTable {
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+  styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit {
-
   //roleList: Set<Row> = new Set<Row>();
 
   /*
@@ -31,79 +33,58 @@ export class SettingsComponent implements OnInit {
   selectedRoleCodes$ = this.selectedRoleCodeSubject.asObservable();
   */
 
-  selectedRoles: RoleType[];
+  //TODO: consider using a trackBy function in the selectedRoles list
 
-  filter = new FormControl('', this.validateFilter);
+  //excludedRoles: RoleType[];
+  //excludedRoleCodes: Set<string>;
+  settings: Settings;
 
-  roles$: Observable<RoleType[]> = this.roleTypeService.get();
-  filter$ = this.filter.valueChanges.pipe(
-    startWith(''),
-    filter(filterValue => typeof filterValue === "string"));
-  filteredRoles$: Observable<RoleType[]>;
+  constructor(private settingService: SettingsService) {}
 
-  @ViewChild("roleInput", {static: true}) roleInput: ElementRef;
-
-  constructor(
-    private restService: CloudAppRestService,
-    private settingService: CloudAppSettingsService,
-    private roleTypeService: RoleTypeService) {}
-
-  ngOnInit() {
-    this.filteredRoles$ = combineLatest(this.roles$, this.filter$).pipe(
-      tap(([_, filterValue]) => console.log("value change: ", filterValue)),
-      map(([roles, filterValue]) => roles.filter(
-        role => role.desc.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1)));
-
-        /*
-    this.settingService.get().subscribe(settings => 
-      this.selectedRoles = settings.excludeRoles || []);
-      */
-
-    zip(this.settingService.get(), this.roles$).pipe(
-      map(([settings, roles]) => (settings.excludeRoleCodes || [])
-        .map(code => roles.find(role => role.code === code))
-      )).subscribe(roles => this.selectedRoles = roles);
-    
+  ngOnInit(): void {
+    this.loadSettings();
+    //this.settings = new Settings();
   }
 
-  formatRoleTypeOption(role: RoleType): string {
-    return role && role.desc;
+  loadSettings(): void {
+    this.settingService.get().subscribe(settings => (this.settings = settings));
   }
 
-  addSelectedRole() {
-    //this.roleList.add(this.filter.value);
-    this.selectedRoles.push(this.filter.value);
-    this.filter.reset();
-    this.roleInput.nativeElement.focus();
-  }
-
-  validateFilter(crtl: FormControl) {
-    if (typeof crtl.value === "string") {
-      return {
-        error: "Select a valid role"
-      }
-    }
-    return null;
-  }
-
-  remove(role: RoleType) {
-    console.log("removing: ", role);
-    this.selectedRoles = this.selectedRoles.filter(r => r.code !== role.code);
-    //this.roleList.delete(row);
-  }
-
-  save() {
+  save(): void {
     //TODO: add staving state & spinner
-    const codes = this.selectedRoles.map(role => role.code);
-    const settings = { excludeRoleCodes: codes };
-    this.settingService.set(settings).subscribe(resp => {
+    //const codes = this.excludedRoleCodes.map(role => role.code || role);
+    //const settings = { excludedRoleCodes: Array.from(this.excludedRoleCodes) };
+    this.settingService.set(this.settings).subscribe(resp => {
       if (resp.success) {
-        console.log("Settings Saved");
+        console.log('Settings Saved');
       } else {
-        console.error("Failed to save settings: ", resp.error);
+        console.error('Failed to save settings: ', resp.error);
       }
     });
   }
 
+  addRoleCode(code: RoleType | string): void {
+    this.settings.excludedRoleCodes.push(
+      (code as RoleType).code || (code as string)
+    );
+  }
+
+  removeRoleCode(code: RoleType | string): void {
+    console.log('removing: ', code);
+    const index = this.settings.excludedRoleCodes.indexOf(
+      (code as RoleType).code || (code as string)
+    );
+    this.settings.excludedRoleCodes.splice(index, 1);
+    //this.settings.excludedRoleCodes.delete();
+  }
+
   // TODO: add cacel handler; reload data (dirty check?)
 }
+
+/*
+
+<settings>
+  <excluded-roles>
+    <role-picker>
+
+*/

@@ -1,33 +1,17 @@
-<p>settings works!</p>
+<app-role-picker (roleAdded)="addRoleCode($event)"></app-role-picker>
 
-
-  <mat-form-field>
-    <input #roleInput 
-           type="text" 
-           matInput 
-           placeholder="Select a role"
-           [formControl]="filter" 
-           [matAutocomplete]="auto">
-  </mat-form-field>
-  <mat-autocomplete #auto="matAutocomplete" [displayWith]="formatRoleTypeOption">
-    <mat-option *ngFor="let role of filteredRoles$ | async" [value]="role">
-        {{role.desc}}
-    </mat-option>
-  </mat-autocomplete>
-  <button *ngIf="filter.valid" mat-button color="primary" (click)=addSelectedRole()>Add Role</button>
-
-  <mat-list>
-    <mat-list-item *ngFor="let role of selectedRoles">
-      <span matLine>
-      {{role.code | roleTypeDesc}} 
-      </span>
-      <button mat-icon-button (click)="remove(role)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </mat-list-item>
-  </mat-list>
+<mat-list>
+  <mat-list-item *ngFor="let roleCode of settings?.excludedRoleCodes">
+    <span matLine>
+      {{ roleCode | roleTypeDesc }}
+    </span>
+    <button mat-icon-button (click)="removeRoleCode(roleCode)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </mat-list-item>
+</mat-list>
 
 <div>
-<button mat-raised-button color="primary" (click)="save()" >Save</button>
-<button mat-raised-button color="primary">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()">Save</button>
+  <button mat-raised-button color="primary">Cancel</button>
 </div>

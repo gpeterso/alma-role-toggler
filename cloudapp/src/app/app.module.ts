@@ -3,7 +3,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MaterialModule, getTranslateModule } from '@exlibris/exl-cloudapp-angular-lib';
+import {
+  MaterialModule,
+  getTranslateModule,
+} from '@exlibris/exl-cloudapp-angular-lib';
 import { ToastrModule } from 'ngx-toastr';
 
 import { AppComponent } from './app.component';
@@ -11,11 +14,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
 import { SettingsComponent } from './settings/settings.component';
 import { RoleTypeDescPipe } from './pipes/role-type-desc.pipe';
+import { RolePickerComponent } from './settings/role-picker/role-picker.component';
 
 export function getToastrModule() {
   return ToastrModule.forRoot({
     positionClass: 'toast-top-right',
-    timeOut: 2000
+    timeOut: 2000,
   });
 }
 
@@ -24,7 +28,8 @@ export function getToastrModule() {
     AppComponent,
     MainComponent,
     SettingsComponent,
-    RoleTypeDescPipe
+    RoleTypeDescPipe,
+    RolePickerComponent,
   ],
   imports: [
     MaterialModule,
@@ -37,6 +42,6 @@ export function getToastrModule() {
     ReactiveFormsModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

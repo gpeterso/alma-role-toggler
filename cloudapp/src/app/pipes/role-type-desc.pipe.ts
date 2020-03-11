@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, first, shareReplay } from 'rxjs/operators';
 import { RoleTypeService } from '../services/role-type.service';
 import { RoleType } from '../models/user';
+import { Observable } from 'rxjs';
 
 const toLookupTable = (roleTypes: RoleType[]) =>
   roleTypes.reduce(
@@ -9,29 +10,60 @@ const toLookupTable = (roleTypes: RoleType[]) =>
     {}
   );
 
+/**
+ * Transforms a role type code to it's corresponding description.
+ */
 @Pipe({
   name: 'roleTypeDesc',
-  pure: true
+  pure: false,
 })
 export class RoleTypeDescPipe implements PipeTransform {
   private lookupTable: Record<string, string> = null;
 
+  private cache$ = null;
+
   constructor(private roleTypeService: RoleTypeService) {}
 
   transform(code: string): string {
-    if (!this.lookupTable) this.loadLookupTable();
-    return this.lookupTable[code] || `UNKNOWN ROLE (${code})`;
+    console.debug(`${this.constructor.name} called`);
+    /*
+    if (!this.lookupTable) {
+      this.getLookupTable()
+        .pipe(shareReplay(1))
+        .subscribe(
+          lookupTable => (this.lookupTable = lookupTable),
+          error => console.error('Failed to load lookup table ', error)
+        );
+    }
+    */
+
+    if (!this.cache$) this.cache$ = this.getLookupTable().pipe(shareReplay(1));
+
+    this.cache$.subscribe(cache => {
+      this.lookupTable = cache;
+    });
+
+    return this.lookupCode(code);
   }
 
-  private loadLookupTable(): void {
-    this.roleTypeService
-      .get()
-      .pipe(
-        map(toLookupTable),
-        tap(_ =>
-          console.debug(`${this.constructor.name}: loading lookup table`)
+  private lookupCode(code: string): string {
+    if (this.lookupTable) {
+      return this.lookupTable[code] || `UNKNOWN ROLE (${code})`;
+    } else {
+      return '...';
+    }
+  }
+
+  private getLookupTable(): Observable<Record<string, string>> {
+    return this.roleTypeService.get().pipe(
+      map(toLookupTable),
+      first(),
+      tap(lookupTable =>
+        console.debug(
+          `${this.constructor.name}: loading lookup table `,
+          lookupTable
         )
       )
-      .subscribe(lookupTable => (this.lookupTable = lookupTable));
+    );
   }
 }
