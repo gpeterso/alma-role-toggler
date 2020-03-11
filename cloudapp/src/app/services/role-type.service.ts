@@ -1,16 +1,16 @@
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { map, tap, pluck, shareReplay } from "rxjs/operators";
-import { sortBy } from "lodash";
-import { CloudAppRestService } from "@exlibris/exl-cloudapp-angular-lib";
-import { RoleType } from "../models/user";
-import { CodeTable, CodeTableRow } from "../models/code-table";
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, tap, pluck, shareReplay } from 'rxjs/operators';
+import { sortBy } from 'lodash';
+import { CloudAppRestService } from '@exlibris/exl-cloudapp-angular-lib';
+import { RoleType } from '../models/user';
+import { CodeTable, CodeTableRow } from '../models/code-table';
 
 const toRoleTypes = (rows: CodeTableRow[]): RoleType[] =>
   rows.map(row => ({ code: row.code, desc: row.description }));
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class RoleTypeService {
   private cache$: Observable<RoleType[]>;
@@ -28,15 +28,16 @@ export class RoleTypeService {
     return this.cache$;
   }
 
-  private loadData() {
+  // TODO: consider adding retries
+  private loadData(): Observable<RoleType[]> {
     return this.restService
-      .call("/conf/code-tables/HFrUserRoles.roleType")
+      .call('/conf/code-tables/HFrUserRoles.roleType')
       .pipe(
         map(resp => resp as CodeTable),
-        pluck("row"),
+        pluck('row'),
         map(toRoleTypes),
-        map(roleTypes => sortBy(roleTypes, "desc")),
-        tap(rt => console.debug("fetched role types: ", rt))
+        map(roleTypes => sortBy(roleTypes, 'desc')),
+        tap(rt => console.debug('fetched role types: ', rt))
       );
   }
 }
