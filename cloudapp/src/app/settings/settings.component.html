@@ -1,15 +1,34 @@
-<app-role-picker (roleAdded)="addRoleCode($event)"></app-role-picker>
-
-<mat-list>
-  <mat-list-item *ngFor="let roleCode of settings?.excludedRoleCodes">
-    <span matLine>
-      {{ roleCode | roleTypeDesc }}
-    </span>
-    <button mat-icon-button (click)="removeRoleCode(roleCode)">
-      <mat-icon>delete</mat-icon>
+<div>
+  <h1>
+    Settings
+  </h1>
+  <a [routerLink]="['']">
+    <button mat-raised-button>
+      <mat-icon>arrow_back</mat-icon>
+      Home
     </button>
-  </mat-list-item>
-</mat-list>
+  </a>
+</div>
+
+<p>Exclude the following when activating/deactivating a user's roles:</p>
+<section>
+  <p *ngIf="settings?.excludedRoleCodes.length === 0">
+    No roles are excluded
+  </p>
+
+  <mat-list>
+    <mat-list-item *ngFor="let roleCode of settings?.excludedRoleCodes">
+      <span matLine>
+        {{ roleCode | roleTypeDesc }}
+      </span>
+      <button mat-icon-button (click)="removeRoleCode(roleCode)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+</section>
+
+<app-role-picker (roleAdded)="addRoleCode($event)"></app-role-picker>
 
 <div>
   <button mat-raised-button color="primary" (click)="save()">Save</button>
