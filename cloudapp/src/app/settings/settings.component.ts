@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Settings } from '../models/settings';
 import { RoleType } from '../models/user';
 import { SettingsService } from '../services/settings.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-settings',
@@ -11,7 +12,10 @@ import { SettingsService } from '../services/settings.service';
 export class SettingsComponent implements OnInit {
   settings: Settings;
 
-  constructor(private settingService: SettingsService) {}
+  constructor(
+    private settingService: SettingsService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.loadSettings();
@@ -22,12 +26,12 @@ export class SettingsComponent implements OnInit {
   }
 
   save(): void {
-    //TODO: add staving state & spinner
     this.settingService.set(this.settings).subscribe(resp => {
       if (resp.success) {
-        console.debug('Settings Saved');
+        this.toastr.success('Settings Saved');
       } else {
         console.error('Failed to save settings: ', resp.error);
+        this.toastr.error('Failed to save settings: ', resp.error);
       }
     });
   }
