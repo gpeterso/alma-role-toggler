@@ -17,6 +17,17 @@ const isUserEntity = (entities: Entity[]): boolean =>
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {
+  // TODO: consider moving this into a separate class...
+  private userUpdateObserver = {
+    next: user => {
+      this.refreshPage();
+    },
+    error: e => {
+      this.toastr.error('Failed to update user');
+      console.error(e);
+      this.loadingSubject.next(false);
+    },
+  };
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
   onUserPage$ = this.almaPage.entities$.pipe(map(isUserEntity));
@@ -31,31 +42,28 @@ export class MainComponent {
     private userService: UserService
   ) {}
 
-  activateStaffRoles(user: User) {
-    user.activateStaffRoles();
-    this.updateUser(user);
+  activateRoles(user: User): void {
+    //user.activateStaffRoles();
+    //this.updateUser(user);
+    this.loadingSubject.next(true);
+    this.userService.activateRoles(user).subscribe(this.userUpdateObserver);
   }
 
-  deactivateStaffRoles(user: User) {
-    user.deactivateStaffRoles();
-    this.updateUser(user);
+  deactivateRoles(user: User): void {
+    //user.deactivateStaffRoles();
+    //this.updateUser(user);
+    this.loadingSubject.next(true);
+    this.userService.deactivateRoles(user).subscribe(this.userUpdateObserver);
   }
 
+  /*
   private updateUser(user: User) {
     this.loadingSubject.next(true);
-    this.userService.update(user).subscribe({
-      next: user => {
-        this.refreshPage();
-      },
-      error: e => {
-        this.toastr.error('Failed to update user');
-        console.error(e);
-        this.loadingSubject.next(false);
-      },
-    });
+    this.userService.update(user).subscribe();
   }
+  */
 
-  private refreshPage() {
+  private refreshPage(): void {
     this.loadingSubject.next(true);
     this.almaPage.refresh().subscribe({
       next: () => this.toastr.success('Success!'),

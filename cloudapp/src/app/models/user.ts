@@ -2,14 +2,14 @@ interface UserRoleStatus {
   value: 'ACTIVE' | 'INACTIVE';
 }
 
-export interface RoleType {
-  code: string;
-  desc: string;
-}
-
 interface UserRole {
   status: UserRoleStatus;
   role_type: RoleType;
+}
+
+export interface RoleType {
+  value: string;
+  desc: string;
 }
 
 /**
@@ -30,45 +30,32 @@ export class User {
     return Object.assign(new User(), user);
   }
 
-  get activeStaffRoleCount(): number {
-    return this.staffRoles.filter(role => role.status.value === 'ACTIVE')
-      .length;
-  }
-
-  activateStaffRoles(): void {
-    this.staffRoles.forEach(role => (role.status.value = 'ACTIVE'));
-  }
-
-  deactivateStaffRoles(): void {
-    this.staffRoles.forEach(role => (role.status.value = 'INACTIVE'));
-  }
-
-  private get staffRoles(): UserRole[] {
-    return this.user_role.filter(role => role.role_type.desc !== 'Patron');
+  get activeRoleCount(): number {
+    return this.user_role.filter(role => role.status.value === 'ACTIVE').length;
   }
 
   /**
    * Activate all of the user's roles, except those specified in roleCodes
-   * @param roleCode role codes to exclude (defined in the User Roles code table)
+   * @param roleTypes role types to exclude
    */
-  activateRolesExcept(roleCodes: Iterable<string> = []): void {
-    this.allRolesExcept(roleCodes).forEach(
+  activateRolesExcept(roleTypes: Array<RoleType> = []): void {
+    this.allRolesExcept(roleTypes).forEach(
       role => (role.status.value = 'ACTIVE')
     );
   }
 
   /**
    * Deactivate all of the user's roles, except those specified in roleCodes
-   * @param roleCode role codes to exclude (defined in the User Roles code table)
+   * @param roleTypes role types to exclude
    */
-  deactivateRolesExcept(roleCodes: Iterable<string> = []): void {
-    this.allRolesExcept(roleCodes).forEach(
+  deactivateRolesExcept(roleTypes: Array<RoleType> = []): void {
+    this.allRolesExcept(roleTypes).forEach(
       role => (role.status.value = 'INACTIVE')
     );
   }
 
-  private allRolesExcept(roleCodes: Iterable<string> = []): UserRole[] {
-    const blacklist = new Set(roleCodes);
-    return this.user_role.filter(role => !blacklist.has(role.role_type.code));
+  private allRolesExcept(roleTypes: Array<RoleType>): UserRole[] {
+    const blacklist = new Set(roleTypes.map(roleType => roleType.value));
+    return this.user_role.filter(role => !blacklist.has(role.role_type.value));
   }
 }

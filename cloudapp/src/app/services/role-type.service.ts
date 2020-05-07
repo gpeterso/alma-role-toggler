@@ -7,7 +7,7 @@ import { RoleType } from '../models/user';
 import { CodeTable, CodeTableRow } from '../models/code-table';
 
 const toRoleTypes = (rows: CodeTableRow[]): RoleType[] =>
-  rows.map(row => ({ code: row.code, desc: row.description }));
+  rows.map(row => ({ value: row.code, desc: row.description }));
 
 @Injectable({
   providedIn: 'root',

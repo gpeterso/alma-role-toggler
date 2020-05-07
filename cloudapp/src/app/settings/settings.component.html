@@ -1,4 +1,4 @@
-<div>
+<div class="navbar">
   <h1>
     Settings
   </h1>
@@ -10,27 +10,43 @@
   </a>
 </div>
 
-<p>Exclude the following when activating/deactivating a user's roles:</p>
-<section>
-  <p *ngIf="settings?.excludedRoleCodes.length === 0">
-    No roles are excluded
-  </p>
-
-  <mat-list>
-    <mat-list-item *ngFor="let roleCode of settings?.excludedRoleCodes">
-      <span matLine>
-        {{ roleCode | roleTypeDesc }}
-      </span>
-      <button mat-icon-button (click)="removeRoleCode(roleCode)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </mat-list-item>
-  </mat-list>
-</section>
-
-<app-role-picker (roleAdded)="addRoleCode($event)"></app-role-picker>
-
-<div>
-  <button mat-raised-button color="primary" (click)="save()">Save</button>
-  <button mat-raised-button color="primary">Cancel</button>
-</div>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Excluded Roles</mat-card-title>
+    <mat-card-subtitle>
+      Exclude these when toggling a user's roles
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <section class="role-list">
+      <mat-list>
+        <mat-list-item matLine *ngIf="settings?.excludedRoles?.length === 0">
+          <em>No roles are excluded</em>
+        </mat-list-item>
+        <mat-list-item
+          *ngFor="
+            let role of settings?.excludedRoles;
+            let i = index;
+            trackBy: trackByCode
+          "
+        >
+          <span matLine>
+            {{ role.desc }}
+          </span>
+          <button mat-icon-button (click)="removeRole(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+        <mat-list-item>
+          <app-role-picker (roleAdded)="addRole($event)"></app-role-picker>
+        </mat-list-item>
+      </mat-list>
+    </section>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-raised-button color="primary" (click)="save()">Save</button>
+    <button mat-raised-button color="primary" (click)="loadSettings()">
+      Reset
+    </button>
+  </mat-card-actions>
+</mat-card>

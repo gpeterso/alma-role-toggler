@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 const toLookupTable = (roleTypes: RoleType[]) =>
   roleTypes.reduce(
-    (table, roleType) => ({ ...table, [roleType.code]: roleType.desc }),
+    (table, roleType) => ({ ...table, [roleType.value]: roleType.desc }),
     {}
   );
 

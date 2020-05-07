@@ -1,3 +1,5 @@
+import { RoleType } from './user';
+
 export interface Settings {
-  excludeRoleCodes: string[];
+  excludedRoles: RoleType[];
 }

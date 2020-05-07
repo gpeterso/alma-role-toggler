@@ -50,8 +50,6 @@ export class RolePickerComponent implements OnInit {
   }
 
   addSelectedRole(): void {
-    //this.roleList.add(this.filter.value);
-    //this.selectedRoles.push(this.filter.value);
     this.roleAdded.emit(this.role.value);
     this.role.reset();
     this.roleInput.nativeElement.focus();
@@ -62,7 +60,7 @@ export class RolePickerComponent implements OnInit {
   }
 
   private validateRole(formControl: FormControl): ValidationErrors | null {
-    if (!formControl.value || !formControl.value.code) {
+    if (!formControl.value || typeof formControl.value === 'string') {
       return {
         error: 'Enter a valid role',
       };
