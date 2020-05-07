@@ -48,6 +48,4 @@ export class SettingsComponent implements OnInit {
   private sortRoles(): void {
     this.settings.excludedRoles.sort((a, b) => (a.desc > b.desc ? 1 : -1));
   }
-
-  // TODO: add cacel handler; reload data (dirty check?)
 }

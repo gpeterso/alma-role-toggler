@@ -17,7 +17,6 @@ const isUserEntity = (entities: Entity[]): boolean =>
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {
-  // TODO: consider moving this into a separate class...
   private userUpdateObserver = {
     next: user => {
       this.refreshPage();
@@ -43,25 +42,14 @@ export class MainComponent {
   ) {}
 
   activateRoles(user: User): void {
-    //user.activateStaffRoles();
-    //this.updateUser(user);
     this.loadingSubject.next(true);
     this.userService.activateRoles(user).subscribe(this.userUpdateObserver);
   }
 
   deactivateRoles(user: User): void {
-    //user.deactivateStaffRoles();
-    //this.updateUser(user);
     this.loadingSubject.next(true);
     this.userService.deactivateRoles(user).subscribe(this.userUpdateObserver);
   }
-
-  /*
-  private updateUser(user: User) {
-    this.loadingSubject.next(true);
-    this.userService.update(user).subscribe();
-  }
-  */
 
   private refreshPage(): void {
     this.loadingSubject.next(true);
