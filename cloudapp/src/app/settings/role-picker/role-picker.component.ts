@@ -5,6 +5,7 @@ import {
   EventEmitter,
   ElementRef,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormControl, ValidationErrors } from '@angular/forms';
 import { startWith, filter, tap, map } from 'rxjs/operators';
@@ -16,14 +17,14 @@ import { RoleTypeService } from '../../services/role-type.service';
   selector: 'app-role-picker',
   templateUrl: './role-picker.component.html',
   styleUrls: ['./role-picker.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RolePickerComponent implements OnInit {
-  // @Input() excludedRoleCodes;
   @Output() roleAdded = new EventEmitter<RoleType>();
   @ViewChild('roleInput', { static: true }) roleInput: ElementRef;
 
   /**
-   * Role input value
+   * User input value
    */
   role = new FormControl('', this.validateRole);
 
