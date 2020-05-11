@@ -5,7 +5,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
 import { User } from '../models/user';
 import { UserService } from '../services/user.service';
-import { AlmaPageService } from '../alma-page.service';
+import { AlmaPageService } from '../services/alma-page.service';
 
 const isUserEntity = (entities: Entity[]): boolean =>
   entities.length == 1 && entities[0].type == 'USER';
