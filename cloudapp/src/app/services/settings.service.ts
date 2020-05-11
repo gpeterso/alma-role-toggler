@@ -16,7 +16,12 @@ export class SettingsService {
 
   get(): Observable<Settings> {
     return this.cloudAppSettingsService.get().pipe(
-      map(settings => settings as Settings),
+      map(settings => {
+        if (typeof settings.excludedRoles === 'undefined') {
+          settings.excludedRoles = [];
+        }
+        return settings as Settings;
+      }),
       tap(s => console.debug('fetched settings: ', s))
     );
   }
