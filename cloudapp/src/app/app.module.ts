@@ -13,7 +13,6 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
 import { SettingsComponent } from './settings/settings.component';
-import { RoleTypeDescPipe } from './pipes/role-type-desc.pipe';
 import { RolePickerComponent } from './settings/role-picker/role-picker.component';
 
 export function getToastrModule() {
@@ -28,7 +27,6 @@ export function getToastrModule() {
     AppComponent,
     MainComponent,
     SettingsComponent,
-    RoleTypeDescPipe,
     RolePickerComponent,
   ],
   imports: [
