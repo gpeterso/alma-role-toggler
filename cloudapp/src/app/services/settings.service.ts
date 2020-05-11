@@ -17,7 +17,7 @@ export class SettingsService {
   get(): Observable<Settings> {
     return this.cloudAppSettingsService.get().pipe(
       map(settings => settings as Settings),
-      tap(s => console.log('fetched settings: ', s))
+      tap(s => console.debug('fetched settings: ', s))
     );
   }
 
