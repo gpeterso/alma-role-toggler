@@ -4,7 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
 import { User } from '../models/user';
-import { UserService } from '../user.service';
+import { UserService } from '../services/user.service';
 import { AlmaPageService } from '../alma-page.service';
 
 const isUserEntity = (entities: Entity[]): boolean =>

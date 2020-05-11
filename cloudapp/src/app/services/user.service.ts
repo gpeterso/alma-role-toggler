@@ -5,8 +5,8 @@ import {
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { User } from './models/user';
-import { SettingsService } from './services/settings.service';
+import { User } from '../models/user';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root',
