@@ -1,9 +1,11 @@
 {
-   "$schema": "./manifest.schema.json",
-   "id": "role-toggler",
-   "title": "Role Toggler",
-   "description": "Quickly activate/deactivate an Alma user's roles.",
-   "pages": {
-      "settings": "/#/settings"
-   }
+  "$schema": "./manifest.schema.json",
+  "id": "role-toggler",
+  "title": "Role Toggler",
+  "subtitle": "Quickly activate/deactivate a user's roles.",
+  "description": "Navigate to a user record, and click the activate or deactivate roles button. Use the settings menu to selectively prevent some roles from being toggled.",
+  "entities": ["USER"],
+  "pages": {
+    "settings": "/#/settings"
+  }
 }
