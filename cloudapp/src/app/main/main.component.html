@@ -1,11 +1,17 @@
 <section>
-  <h1>
-    Toggle Roles
-  </h1>
-  <p>Activate or deactivate a user's roles</p>
+  <h1>Activate/Deactivate User Roles</h1>
 </section>
 
-<section *ngIf="(onUserPage$ | async) && user$ | async as user">
+<ng-template #usage>
+  <section>
+    <p>
+      To use this app, navigate to a user record in Alma. Options to activate or
+      deactivate the user's roles will appear here.
+    </p>
+  </section>
+</ng-template>
+
+<section *ngIf="(onUserPage$ | async) && user$ | async as user; else usage">
   <mat-card>
     <mat-card-header>
       <mat-card-title>User: {{ user.full_name }}</mat-card-title>
@@ -40,4 +46,13 @@
       </button>
     </mat-card-actions>
   </mat-card>
+</section>
+
+<section>
+  <mat-icon class="tip-icon">emoji_objects</mat-icon>
+  <p>
+    <em>
+      Use the settings menu to selectively exclude roles from being toggled.
+    </em>
+  </p>
 </section>
