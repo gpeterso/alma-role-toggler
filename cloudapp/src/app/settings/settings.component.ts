@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Renderer2 } from '@angular/core';
 import { Settings } from '../models/settings';
 import { RoleType } from '../models/user';
 import { SettingsService } from '../services/settings.service';
@@ -11,10 +11,14 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class SettingsComponent implements OnInit {
   settings: Settings;
+  addingRole = false;
+  dirty = false;
 
   constructor(
     private settingService: SettingsService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private changeDetector: ChangeDetectorRef,
+    private renderer: Renderer2
   ) {}
 
   ngOnInit(): void {
@@ -22,6 +26,8 @@ export class SettingsComponent implements OnInit {
   }
 
   loadSettings(): void {
+    this.addingRole = false;
+    this.dirty = false;
     this.settingService.get().subscribe(settings => (this.settings = settings));
   }
 
@@ -29,6 +35,7 @@ export class SettingsComponent implements OnInit {
     this.settingService.set(this.settings).subscribe(resp => {
       if (resp.success) {
         this.toastr.success('Settings Saved');
+        this.dirty = false;
       } else {
         console.error('Failed to save settings: ', resp.error);
         this.toastr.error('Failed to save settings: ', resp.error);
@@ -37,16 +44,25 @@ export class SettingsComponent implements OnInit {
   }
 
   addRole(role: RoleType): void {
+    this.addingRole = false;
+    this.dirty = true;
     this.settings.excludedRoles.push(role);
     this.sortRoles();
   }
 
   removeRole(index: number): void {
     this.settings.excludedRoles.splice(index, 1);
+    this.dirty = true;
   }
 
   trackByCode(index: number, role: RoleType): string {
     return role.value;
+  }
+
+  showRolePicker(): void {
+    this.addingRole = true;
+    this.changeDetector.detectChanges();
+    this.renderer.selectRootElement('app-role-picker input').focus();
   }
 
   private sortRoles(): void {

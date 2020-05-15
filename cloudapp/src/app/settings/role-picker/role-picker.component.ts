@@ -3,8 +3,6 @@ import {
   OnInit,
   Output,
   EventEmitter,
-  ElementRef,
-  ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormControl, ValidationErrors } from '@angular/forms';
@@ -21,7 +19,6 @@ import { RoleTypeService } from '../../services/role-type.service';
 })
 export class RolePickerComponent implements OnInit {
   @Output() roleAdded = new EventEmitter<RoleType>();
-  @ViewChild('roleInput', { static: true }) roleInput: ElementRef;
 
   /**
    * User input value
@@ -53,7 +50,6 @@ export class RolePickerComponent implements OnInit {
   addSelectedRole(): void {
     this.roleAdded.emit(this.role.value);
     this.role.reset();
-    this.roleInput.nativeElement.focus();
   }
 
   formatRoleOption(role: RoleType): string {
@@ -61,9 +57,9 @@ export class RolePickerComponent implements OnInit {
   }
 
   private validateRole(formControl: FormControl): ValidationErrors | null {
-    if (!formControl.value || typeof formControl.value === 'string') {
+    if (typeof formControl.value === 'string' && formControl.value.length > 0) {
       return {
-        error: 'Enter a valid role',
+        error: 'Select a valid role',
       };
     }
     return null;

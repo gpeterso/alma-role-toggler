@@ -37,16 +37,35 @@
             <mat-icon>delete</mat-icon>
           </button>
         </mat-list-item>
-        <mat-list-item>
-          <app-role-picker (roleAdded)="addRole($event)"></app-role-picker>
+        <mat-list-item [ngSwitch]="addingRole">
+          <app-role-picker
+            *ngSwitchCase="true"
+            (roleAdded)="addRole($event)"
+          ></app-role-picker>
+          <button *ngSwitchDefault mat-raised-button (click)="showRolePicker()">
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
         </mat-list-item>
       </mat-list>
     </section>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-raised-button color="primary" (click)="save()">Save</button>
-    <button mat-raised-button color="primary" (click)="loadSettings()">
-      Reset
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="!dirty"
+      (click)="save()"
+    >
+      Save
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="!dirty"
+      (click)="loadSettings()"
+    >
+      Cancel
     </button>
   </mat-card-actions>
 </mat-card>

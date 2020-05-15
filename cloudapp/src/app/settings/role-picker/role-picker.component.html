@@ -3,21 +3,17 @@
     #roleInput
     type="text"
     matInput
-    placeholder="Add Role"
+    placeholder="Select a role"
     [formControl]="role"
     [matAutocomplete]="auto"
   />
 </mat-form-field>
-<mat-autocomplete #auto="matAutocomplete" [displayWith]="formatRoleOption">
+<mat-autocomplete
+  #auto="matAutocomplete"
+  [displayWith]="formatRoleOption"
+  (optionSelected)="addSelectedRole()"
+>
   <mat-option *ngFor="let role of filteredRoles$ | async" [value]="role">
     {{ role.desc }}
   </mat-option>
 </mat-autocomplete>
-<button
-  *ngIf="role.valid"
-  mat-button
-  color="primary"
-  (click)="addSelectedRole()"
->
-  Add
-</button>
