@@ -1,5 +1,5 @@
-import { BehaviorSubject } from 'rxjs';
-import { map, pluck, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, of } from 'rxjs';
+import { map, pluck, switchMap, catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
@@ -30,9 +30,15 @@ export class MainComponent {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
   onUserPage$ = this.almaPage.entities$.pipe(map(isUserEntity));
+  unauthorized$ = new BehaviorSubject<boolean>(false);
   user$ = this.almaPage.entities$.pipe(
     pluck(0, 'link'),
-    switchMap(link => this.userService.get(link))
+    switchMap(link => this.userService.get(link)),
+    catchError(e => {
+      console.error('Failed to retrieve user: ', e);
+      if (e.status === 401) this.unauthorized$.next(true);
+      return of();
+    })
   );
 
   constructor(

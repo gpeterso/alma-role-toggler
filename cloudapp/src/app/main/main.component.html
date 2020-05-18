@@ -51,8 +51,18 @@
 <section>
   <mat-icon class="tip-icon">emoji_objects</mat-icon>
   <p>
-    <em>
-      Use the settings menu to selectively exclude roles from being toggled.
-    </em>
+    Use the settings menu to selectively exclude roles from being toggled.
   </p>
+</section>
+
+<section *ngIf="(onUserPage$ | async) && unauthorized$ | async">
+  <mat-card class="error">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>warning</mat-icon>
+      <mat-card-title>Unauthorized</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      It looks like you don't have permission to modify users.
+    </mat-card-content>
+  </mat-card>
 </section>
