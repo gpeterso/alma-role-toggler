@@ -1,16 +1,17 @@
 {
-  "$schema": "./manifest.schema.json",
-  "id": "role-toggler",
-  "title": "Role Toggler",
-  "subtitle": "Quickly activate/deactivate a user's roles.",
-  "description": "Navigate to a user record, and click the activate or deactivate roles button. Use the settings menu to selectively prevent some roles from being toggled.",
-  "author": "Jeff Peterson",
-  "entities": ["USER"],
-  "icon": {
-    "type": "font",
-    "value": "fa fa-toggle-on"
-  },
-  "pages": {
-    "settings": "/#/settings"
-  }
+   "id": "role-toggler",
+   "title": "Role Toggler",
+   "description": "Navigate to a user record, and click the activate or deactivate roles button. Use the settings menu to selectively prevent some roles from being toggled.",
+   "subtitle": "Quickly activate/deactivate a user's roles.",
+   "author": "Jeff Peterson",
+   "entities": [
+      "USER"
+   ],
+   "icon": {
+      "type": "font",
+      "value": "fa fa-toggle-on"
+   },
+   "pages": {
+      "settings": "/#/settings"
+   }
 }
