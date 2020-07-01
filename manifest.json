@@ -4,6 +4,7 @@
   "title": "Role Toggler",
   "subtitle": "Quickly activate/deactivate a user's roles.",
   "description": "Navigate to a user record, and click the activate or deactivate roles button. Use the settings menu to selectively prevent some roles from being toggled.",
+  "author": "Jeff Peterson",
   "entities": ["USER"],
   "icon": {
     "type": "font",
