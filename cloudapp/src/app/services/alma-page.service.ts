@@ -21,7 +21,7 @@ export class AlmaPageService {
   private futurePageInfo$ = fromEventPattern<PageInfo>(
     handler => this.eventsService.onPageLoad(handler),
     (_, subscription) => subscription.unsubscribe()
-  ).pipe(skip(1)); // ignore the initially-emitted value of `{ entities: [] }`
+  );
 
   /**
    * Never completes; users should unsubscribe.
