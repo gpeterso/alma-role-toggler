@@ -5,6 +5,7 @@
   "scripts": {
     "postversion": "git push && git push --tags",
     "start": "eca start",
+    "build": "eca build",
     "eca": "eca"
   },
   "dependencies": {
