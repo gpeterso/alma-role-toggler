@@ -1,6 +1,11 @@
 # Alma Role Toggler
 
-Alma CloudApp that enables role managers to quickly activate/deactivate a user's roles.
+Alma Cloud App that enables role managers to quickly activate/deactivate a user's roles.
 
-## Need help? Found a bug? 
+## Usage
+
+Check out [Yoel's blog post](https://developers.exlibrisgroup.com/blog/how-to-install-and-use-the-role-toggler-cloud-app/) for details on installing and using the role toggler app.
+
+## Need help? Found a bug?
+
 [Please open an issue](../../issues)
