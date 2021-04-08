@@ -7,20 +7,13 @@ import {
   MaterialModule,
   getTranslateModule,
 } from '@exlibris/exl-cloudapp-angular-lib';
-import { ToastrModule } from 'ngx-toastr';
+import { AlertModule } from '@exlibris/exl-cloudapp-angular-lib';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MainComponent } from './main/main.component';
 import { SettingsComponent } from './settings/settings.component';
 import { RolePickerComponent } from './settings/role-picker/role-picker.component';
-
-export function getToastrModule() {
-  return ToastrModule.forRoot({
-    positionClass: 'toast-top-right',
-    timeOut: 2000,
-  });
-}
 
 @NgModule({
   declarations: [
@@ -36,8 +29,8 @@ export function getToastrModule() {
     AppRoutingModule,
     HttpClientModule,
     getTranslateModule(),
-    getToastrModule(),
     ReactiveFormsModule,
+    AlertModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, Renderer2 } from '@angular/core';
 import { Settings } from '../models/settings';
 import { RoleType } from '../models/user';
 import { SettingsService } from '../services/settings.service';
-import { ToastrService } from 'ngx-toastr';
+import { AlertService } from '@exlibris/exl-cloudapp-angular-lib';
 
 @Component({
   selector: 'app-settings',
@@ -16,7 +16,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private settingService: SettingsService,
-    private toastr: ToastrService,
+    private alert: AlertService,
     private changeDetector: ChangeDetectorRef,
     private renderer: Renderer2
   ) {}
@@ -34,11 +34,11 @@ export class SettingsComponent implements OnInit {
   save(): void {
     this.settingService.set(this.settings).subscribe(resp => {
       if (resp.success) {
-        this.toastr.success('Settings Saved');
+        this.alert.success('Settings Saved');
         this.dirty = false;
       } else {
         console.error('Failed to save settings: ', resp.error);
-        this.toastr.error('Failed to save settings: ', resp.error);
+        this.alert.error('Failed to save settings: ', resp.error);
       }
     });
   }
