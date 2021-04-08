@@ -2,7 +2,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { map, pluck, switchMap, catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { Entity } from '@exlibris/exl-cloudapp-angular-lib';
+import { Entity, RestErrorResponse } from '@exlibris/exl-cloudapp-angular-lib';
 import { User } from '../models/user';
 import { UserService } from '../services/user.service';
 import { AlmaPageService } from '../services/alma-page.service';
@@ -21,8 +21,9 @@ export class MainComponent {
     next: user => {
       this.refreshPage();
     },
-    error: e => {
-      this.toastr.error('Failed to update user');
+    error: (e: RestErrorResponse) => {
+      const errorMsg = 'Failed to update user. ' + e.message ?? '';
+      this.toastr.error(errorMsg);
       console.error(e);
       this.loadingSubject.next(false);
     },
